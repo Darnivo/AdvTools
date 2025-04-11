@@ -15,6 +15,10 @@ public class MazeGenerator : MonoBehaviour
     public GameObject startMarker;
     public GameObject endMarker;
 
+    [Header("Camera Settings")]
+    public bool autoAdjustCamera = true;
+    public Camera targetCamera;
+
     private Transform mazeParent;
     private Cell[,] grid;
 
@@ -33,6 +37,39 @@ public class MazeGenerator : MonoBehaviour
         InitializeGrid();
         ApplyEllersAlgorithm();
         VisualizeMaze();
+
+        if (autoAdjustCamera) RelocateCam();
+    }
+
+    public void RelocateCam()
+    {
+        if (targetCamera != null)
+        {
+            // Center the camera on the maze based on its actual dimensions.
+            float centerZ = (width - 1) / 2f;
+            float centerX = (height - 1) / 2f;
+            targetCamera.transform.position = new Vector3(centerX, 20f, centerZ);
+
+            float aspectRatio = targetCamera.aspect;
+
+            // Calculate required dimensions including padding (0.5 on each side)
+            float requiredWidth = width + 1f;
+            float requiredHeight = height + 1f;
+
+            // Calculate orthographic sizes based on both width and height
+            float verticalOrtho = requiredHeight / 2f;
+            float horizontalOrtho = requiredWidth / (2f * aspectRatio);
+
+            // Use the larger size to ensure the entire maze fits
+            targetCamera.orthographicSize = Mathf.Max(verticalOrtho, horizontalOrtho);
+            
+            // targetCamera.transform.position = new Vector3(center, 20f, center);
+            // targetCamera.orthographicSize = height / 2f + 0.5f;
+        }
+        else
+        {
+            Debug.LogWarning("Target camera is not assigned.");
+        }
     }
 
     private void CleanupMaze()
@@ -43,26 +80,26 @@ public class MazeGenerator : MonoBehaviour
 
     private void InitializeGrid()
     {
-        grid = new Cell[width, height];
-        for (int x = 0; x < width; x++)
-            for (int z = 0; z < height; z++)
+        grid = new Cell[height, width];
+        for (int x = 0; x < height; x++)
+            for (int z = 0; z < width; z++)
                 grid[x, z] = new Cell();
     }
 
     private void ApplyEllersAlgorithm()
     {
         int maxSet = 0;
-        for (int row = 0; row < height; row++)
+        for (int row = 0; row < width; row++)
         {
             // Assign sets for new row
             if (row == 0)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < height; x++)
                     grid[x, row].set = maxSet++;
             }
             else
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < height; x++)
                 {
                     if (!grid[x, row - 1].bottomWall)
                         grid[x, row].set = grid[x, row - 1].set;
@@ -72,9 +109,9 @@ public class MazeGenerator : MonoBehaviour
             }
 
             // Merge adjacent cells
-            if (row != height - 1)
+            if (row != width - 1)
             {
-                for (int x = 0; x < width - 1; x++)
+                for (int x = 0; x < height - 1; x++)
                 {
                     if (grid[x, row].set != grid[x + 1, row].set && Random.value > 0.5f)
                     {
@@ -85,7 +122,7 @@ public class MazeGenerator : MonoBehaviour
 
                 // Create vertical connections
                 Dictionary<int, List<int>> setMembers = new Dictionary<int, List<int>>();
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < height; x++)
                 {
                     int currentSet = grid[x, row].set;
                     if (!setMembers.ContainsKey(currentSet))
@@ -112,7 +149,7 @@ public class MazeGenerator : MonoBehaviour
             else
             {
                 // Final row merging
-                for (int x = 0; x < width - 1; x++)
+                for (int x = 0; x < height - 1; x++)
                 {
                     if (grid[x, row].set != grid[x + 1, row].set)
                     {
@@ -129,7 +166,7 @@ public class MazeGenerator : MonoBehaviour
         int targetSet = grid[a, row].set;
         int oldSet = grid[b, row].set;
 
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < height; x++)
         {
             if (grid[x, row].set == oldSet)
                 grid[x, row].set = targetSet;
@@ -139,21 +176,21 @@ public class MazeGenerator : MonoBehaviour
     private void VisualizeMaze()
     {
         // Create floors
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < height; x++)
         {
-            for (int z = 0; z < height; z++)
+            for (int z = 0; z < width; z++)
             {
                 Instantiate(floorPrefab, new Vector3(x, 0, z), Quaternion.identity, mazeParent);
             }
         }
 
         // Create walls
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < height; x++)
         {
-            for (int z = 0; z < height; z++)
+            for (int z = 0; z < width; z++)
             {
                 // Right walls
-                if (grid[x, z].rightWall && x < width - 1)
+                if (grid[x, z].rightWall && x < height - 1)
                 {
                     Vector3 pos = new Vector3(x + 0.5f, 0.5f, z);
                     GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
@@ -161,7 +198,7 @@ public class MazeGenerator : MonoBehaviour
                 }
 
                 // Bottom walls
-                if (grid[x, z].bottomWall && z < height - 1)
+                if (grid[x, z].bottomWall && z < width - 1)
                 {
                     Vector3 pos = new Vector3(x, 0.5f, z + 0.5f);
                     GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
@@ -172,7 +209,7 @@ public class MazeGenerator : MonoBehaviour
 
         // Create outer walls for the maze
         // Top wall
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < height; x++)
         {
             Vector3 pos = new Vector3(x, 0.5f, -0.5f);
             GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
@@ -180,7 +217,7 @@ public class MazeGenerator : MonoBehaviour
         }
 
         // Left wall
-        for (int z = 0; z < height; z++)
+        for (int z = 0; z < width; z++)
         {
             Vector3 pos = new Vector3(-0.5f, 0.5f, z);
             GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
@@ -188,24 +225,24 @@ public class MazeGenerator : MonoBehaviour
         }
 
         // Right outer wall
-        for (int z = 0; z < height; z++)
+        for (int z = 0; z < width; z++)
         {
-            Vector3 pos = new Vector3(width - 0.5f, 0.5f, z);
+            Vector3 pos = new Vector3(height - 0.5f, 0.5f, z);
             GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
             wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
         }
 
         // Bottom outer wall
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < height; x++)
         {
-            Vector3 pos = new Vector3(x, 0.5f, height - 0.5f);
+            Vector3 pos = new Vector3(x, 0.5f, width - 0.5f);
             GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
             wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
         }
 
         // Place markers
         Instantiate(startMarker, new Vector3(0, 0.5f, 0), Quaternion.identity, mazeParent);
-        Instantiate(endMarker, new Vector3(width - 1, 0.5f, height - 1), Quaternion.identity, mazeParent);
+        Instantiate(endMarker, new Vector3(height - 1, 0.5f, width - 1), Quaternion.identity, mazeParent);
     }
 }
 
