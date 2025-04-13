@@ -20,9 +20,9 @@ public class MazeGenerator : MonoBehaviour
     public Camera targetCamera;
 
     private Transform mazeParent;
-    private Cell[,] grid;
+    public Cell[,] grid;
 
-    private class Cell
+    public class Cell
     {
         public bool rightWall = true;
         public bool bottomWall = true;
