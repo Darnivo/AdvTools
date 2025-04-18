@@ -516,8 +516,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2c2708e7b535b4b86de348251348f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 8
-  height: 8
+  width: 5
+  height: 5
   seed: 8
   wallPrefab: {fileID: 1906903011429976072, guid: c50e5ab4994357c4781802fea9835c2a, type: 3}
   floorPrefab: {fileID: 1906903011429976072, guid: b61d1b51f7cc35b40a138782f42a2ddc, type: 3}
@@ -563,6 +563,7 @@ MonoBehaviour:
   pathMarkerPrefab: {fileID: 1906903011429976072, guid: a08d021414271234f95871034994d00b, type: 3}
   currentPosition: {x: 0, y: 0}
   maze: {fileID: 0}
+  isSolving: 0
   backtrackColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!136 &1991264041
 CapsuleCollider:
@@ -771,6 +772,54 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!1 &2096055717
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2096055719}
+  - component: {fileID: 2096055718}
+  m_Layer: 0
+  m_Name: Recorder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2096055718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096055717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1195eb0918afb1d4bb19f7331717bb3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableRecording: 1
+  timeoutSeconds: 60
+  folderName: MazeStats
+  separateFilesPerRun: 1
+--- !u!4 &2096055719
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096055717}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.0973215, y: -0.021859111, z: -1.9001015}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2250224349159992014
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1029,3 +1078,4 @@ SceneRoots:
   - {fileID: 1134470077}
   - {fileID: 1991264044}
   - {fileID: 363766129}
+  - {fileID: 2096055719}
