@@ -31,8 +31,9 @@ public class TremauxAgent : AgentBase
         }
         
         Debug.Log("Maze solved!");
-        OnMazeSolved?.Invoke();
         isSolving = false;
+        NotifySuccess();
+        OnMazeSolved?.Invoke();
     }
 
     private Vector2Int GetNextDirection()
@@ -100,5 +101,10 @@ public class TremauxAgent : AgentBase
             trail.startColor = backtrackColor;
         else
             trail.startColor = Color.white;
+    }
+
+    protected void NotifySuccess()
+    {
+        StatsRecorder.Instance?.FinalizeRecording("Success");
     }
 }

@@ -11,7 +11,7 @@ public abstract class AgentBase : MonoBehaviour
     [HideInInspector] public MazeGenerator maze;
     
     protected Transform markerParent;
-    protected bool isSolving = false;
+    public bool isSolving = false;
     protected TrailRenderer trail;
 
     public System.Action OnMazeSolved;
@@ -30,6 +30,8 @@ public abstract class AgentBase : MonoBehaviour
         currentPosition = newPosition;
         transform.position = new Vector3(newPosition.x, 0.5f, newPosition.y);
         
+        StatsRecorder.Instance?.RecordStep();
+
         if(showPath) AddPathMarker();
     }
 
@@ -46,5 +48,17 @@ public abstract class AgentBase : MonoBehaviour
     {
         trail.enabled = state;
         markerParent.gameObject.SetActive(state);
+    }
+
+    protected void NotifySuccess()
+    {
+        StatsRecorder.Instance?.FinalizeRecording("Success");
+        isSolving = false;
+    }
+
+    public void StopJourney()
+    {
+        StopAllCoroutines();
+        isSolving = false;
     }
 }

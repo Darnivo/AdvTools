@@ -10,6 +10,7 @@ public class SimulationController : MonoBehaviour
         if(mazeGenerator && tremauxAgent)
         {
             mazeGenerator.GenerateMaze();
+            StatsRecorder.Instance.StartRecording(tremauxAgent);
             tremauxAgent.StartJourney();
         }
     }
