@@ -767,7 +767,7 @@ MonoBehaviour:
   startMarker: {fileID: 5522844059561159728, guid: 9f5ea17d6353a51458b0c2c197b8fb6f, type: 3}
   endMarker: {fileID: 8402957217594112800, guid: 3a7423f12441f654abe66f72aa3e9253, type: 3}
   autoAdjustCamera: 0
-  targetCamera: {fileID: 0}
+  targetCamera: {fileID: 1652760677}
 --- !u!1 &711997853
 GameObject:
   m_ObjectHideFlags: 0
@@ -1386,7 +1386,7 @@ MonoBehaviour:
   startMarker: {fileID: 5522844059561159728, guid: 9f5ea17d6353a51458b0c2c197b8fb6f, type: 3}
   endMarker: {fileID: 8402957217594112800, guid: 3a7423f12441f654abe66f72aa3e9253, type: 3}
   autoAdjustCamera: 0
-  targetCamera: {fileID: 0}
+  targetCamera: {fileID: 1652760677}
 --- !u!1 &1491325656
 GameObject:
   m_ObjectHideFlags: 0
@@ -1439,7 +1439,7 @@ MonoBehaviour:
   startMarker: {fileID: 5522844059561159728, guid: 9f5ea17d6353a51458b0c2c197b8fb6f, type: 3}
   endMarker: {fileID: 8402957217594112800, guid: 3a7423f12441f654abe66f72aa3e9253, type: 3}
   autoAdjustCamera: 0
-  targetCamera: {fileID: 0}
+  targetCamera: {fileID: 1652760677}
 --- !u!1 &1514542142
 GameObject:
   m_ObjectHideFlags: 0
@@ -1974,7 +1974,7 @@ MonoBehaviour:
   startMarker: {fileID: 5522844059561159728, guid: 9f5ea17d6353a51458b0c2c197b8fb6f, type: 3}
   endMarker: {fileID: 8402957217594112800, guid: 3a7423f12441f654abe66f72aa3e9253, type: 3}
   autoAdjustCamera: 0
-  targetCamera: {fileID: 0}
+  targetCamera: {fileID: 1652760677}
 --- !u!1 &1923614395
 GameObject:
   m_ObjectHideFlags: 0
