@@ -11,9 +11,30 @@ public class MLMazeAgent : AgentBase
     public override void Initialize()
     {
         base.Initialize();
-        maze = FindFirstObjectByType<MazeGenerator>();
+
+        // Get the parent environment object
+        Transform environmentParent = transform.parent;
+
+        // Find MazeGenerator in environment parent's children
+        maze = environmentParent.GetComponentInChildren<MazeGenerator>();
+
+        // Verify maze reference
+        if (maze == null)
+        {
+            Debug.LogError("MazeGenerator not found in environment hierarchy!");
+            return;
+        }
+
+        // Set positions relative to maze
         startPos = Vector2Int.zero;
-        targetPos = new Vector2Int(maze.height-1, maze.width-1);
+        targetPos = new Vector2Int(maze.width - 1, maze.height - 1);
+
+        // Set agent's local position to maze start
+        transform.localPosition = new Vector3(
+            startPos.x,
+            0.5f,
+            startPos.y
+        );
     }
 
     public override void StartJourney()
@@ -24,7 +45,8 @@ public class MLMazeAgent : AgentBase
     public override void OnEpisodeBegin()
     {
         currentPosition = startPos;
-        transform.position = new Vector3(startPos.x, 0.5f, startPos.y);
+        // transform.position = new Vector3(startPos.x, 0.5f, startPos.y);
+        transform.localPosition = new Vector3(startPos.x, 0.5f, startPos.y);
         StatsRecorder.Instance.StartRecording(this);
     }
 
@@ -52,7 +74,7 @@ public class MLMazeAgent : AgentBase
             _ => Vector2Int.zero
         };
 
-        if(CanMove(move))
+        if (CanMove(move))
         {
             MoveStep(currentPosition + move);
             AddReward(-0.01f); // Small penalty per step
@@ -70,14 +92,14 @@ public class MLMazeAgent : AgentBase
 
         return direction switch
         {
-            Vector2Int v when v == Vector2Int.up => 
-                y < maze.width - 1 && !maze.grid[x,y].bottomWall,
-            Vector2Int v when v == Vector2Int.right => 
-                x < maze.height - 1 && !maze.grid[x,y].rightWall,
-            Vector2Int v when v == Vector2Int.down => 
-                y > 0 && !maze.grid[x,y-1].bottomWall,
-            Vector2Int v when v == Vector2Int.left => 
-                x > 0 && !maze.grid[x-1,y].rightWall,
+            Vector2Int v when v == Vector2Int.up =>
+                y < maze.width - 1 && !maze.grid[x, y].bottomWall,
+            Vector2Int v when v == Vector2Int.right =>
+                x < maze.height - 1 && !maze.grid[x, y].rightWall,
+            Vector2Int v when v == Vector2Int.down =>
+                y > 0 && !maze.grid[x, y - 1].bottomWall,
+            Vector2Int v when v == Vector2Int.left =>
+                x > 0 && !maze.grid[x - 1, y].rightWall,
             _ => false
         };
     }
@@ -85,7 +107,7 @@ public class MLMazeAgent : AgentBase
     protected void MoveStep(Vector2Int newPos)
     {
         MoveTo(newPos);
-        if(newPos == targetPos)
+        if (newPos == targetPos)
         {
             AddReward(1.0f);
             NotifySuccess();
@@ -97,17 +119,17 @@ public class MLMazeAgent : AgentBase
     {
         var discreteActions = actionsOut.DiscreteActions;
         discreteActions[0] = -1; // Reset
-        
-        if(Input.GetKey(KeyCode.UpArrow)) discreteActions[0] = 0;
-        if(Input.GetKey(KeyCode.RightArrow)) discreteActions[0] = 1;
-        if(Input.GetKey(KeyCode.DownArrow)) discreteActions[0] = 2;
-        if(Input.GetKey(KeyCode.LeftArrow)) discreteActions[0] = 3;
+
+        if (Input.GetKey(KeyCode.UpArrow)) discreteActions[0] = 0;
+        if (Input.GetKey(KeyCode.RightArrow)) discreteActions[0] = 1;
+        if (Input.GetKey(KeyCode.DownArrow)) discreteActions[0] = 2;
+        if (Input.GetKey(KeyCode.LeftArrow)) discreteActions[0] = 3;
     }
 
     protected override void OnDestroy()
     {
-        if(isSolving) 
+        if (isSolving)
             StatsRecorder.Instance.FinalizeRecording("Aborted");
-        base.OnDestroy(); 
+        base.OnDestroy();
     }
 }

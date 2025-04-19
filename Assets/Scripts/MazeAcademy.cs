@@ -7,14 +7,20 @@ public class MazeAcademy : MonoBehaviour
 
     private void Start()
     {
-        UpdateMazeSize();
+        Academy.Instance.OnEnvironmentReset += OnEnvironmentReset;
+        UpdateMazeParameters();
+    }
+
+    private void OnEnvironmentReset()
+    {
+        UpdateMazeParameters();
         ResetEnvironments();
     }
 
-    private void UpdateMazeSize()
+    private void UpdateMazeParameters()
     {
-        // Get value from training config or set default
-        LessonMazeSize = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("maze_size", 5);
+        var envParams = Academy.Instance.EnvironmentParameters;
+        LessonMazeSize = Mathf.FloorToInt(envParams.GetWithDefault("maze_size", 5f));
     }
 
     private void ResetEnvironments()
@@ -26,5 +32,6 @@ public class MazeAcademy : MonoBehaviour
             gen.height = LessonMazeSize;
             gen.GenerateAtParentPosition();
         }
+        
     }
 }
