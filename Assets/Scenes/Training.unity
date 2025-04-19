@@ -172,7 +172,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   stepDelay: 0.1
   showPath: 1
   pathMarkerPrefab: {fileID: 0}
@@ -470,7 +470,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   stepDelay: 0.1
   showPath: 1
   pathMarkerPrefab: {fileID: 0}
@@ -821,7 +821,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   stepDelay: 0.1
   showPath: 1
   pathMarkerPrefab: {fileID: 0}
@@ -1493,7 +1493,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 1000
   stepDelay: 0.1
   showPath: 1
   pathMarkerPrefab: {fileID: 0}

@@ -1,0 +1,50 @@
+behaviors:
+  MLMazeAgent:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 2048
+      buffer_size: 20480
+      learning_rate: 3e-4
+      beta: 5e-3
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: constant
+    network_settings:
+      normalize: false
+      hidden_units: 128
+      num_layers: 2
+    reward_signals:
+      extrinsic:
+        strength: 1.0
+        gamma: 0.99
+    max_steps: 5e6
+    time_horizon: 1000
+    summary_freq: 10000
+    keep_checkpoints: 5
+    threaded: true
+
+environment_parameters:
+  maze_size:
+    curriculum:
+      - name: SmallMaze
+        completion_criteria:
+          measure: progress
+          behavior: MLMazeAgent
+          signal_smoothing: true    # optional, but commonly used
+          min_lesson_length: 10000
+          threshold: 0.3
+        value: 5.0
+
+      - name: MediumMaze
+        completion_criteria:
+          measure: progress
+          behavior: MLMazeAgent
+          signal_smoothing: true
+          min_lesson_length: 10000
+          threshold: 0.6
+        value: 10.0
+
+      - name: LargeMaze
+        # Last lesson doesn’t need completion criteria
+        value: 15.0
