@@ -12,7 +12,7 @@ public class TremauxAgent : AgentBase
 
     public override void StartJourney()
     {
-        if (!maze) maze = FindObjectOfType<MazeGenerator>();
+        if (!maze) maze = FindFirstObjectByType<MazeGenerator>();
         edgeMarks = new Dictionary<(Vector2Int, Vector2Int), int>();
         StartCoroutine(SolveMaze());
     }
@@ -111,7 +111,7 @@ public class TremauxAgent : AgentBase
         trail.startColor = (marks > 1) ? backtrackColor : Color.white;
     }
 
-    protected void NotifySuccess()
+    protected new void NotifySuccess()
     {
         StatsRecorder.Instance?.FinalizeRecording("Success");
     }

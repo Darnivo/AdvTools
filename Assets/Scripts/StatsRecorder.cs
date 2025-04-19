@@ -40,7 +40,7 @@ public class StatsRecorder : MonoBehaviour
         if (!enableRecording) return;
 
         trackedAgent = agent;
-        maze = FindObjectOfType<MazeGenerator>();
+        maze = FindFirstObjectByType<MazeGenerator>();
         startTime = Time.time;
         totalSteps = 0;
         isSuccessful = false;

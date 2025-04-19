@@ -1,27 +1,37 @@
 using UnityEngine;
+using Unity.MLAgents;
 
-public abstract class AgentBase : MonoBehaviour
+public abstract class AgentBase : Agent
 {
     [Header("Base Settings")]
     public float stepDelay = 0.1f;
     public bool showPath = true;
     public GameObject pathMarkerPrefab;
-    
+
     [HideInInspector] public Vector2Int currentPosition;
     [HideInInspector] public MazeGenerator maze;
-    
+
+
     protected Transform markerParent;
     public bool isSolving = false;
     protected TrailRenderer trail;
 
     public System.Action OnMazeSolved;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         trail = GetComponent<TrailRenderer>();
         trail.enabled = showPath;
         markerParent = new GameObject("PathMarkers").transform;
     }
+
+    // void Awake()
+    // {
+    //     trail = GetComponent<TrailRenderer>();
+    //     trail.enabled = showPath;
+    //     markerParent = new GameObject("PathMarkers").transform;
+    // }
 
     public abstract void StartJourney();
 
@@ -29,18 +39,18 @@ public abstract class AgentBase : MonoBehaviour
     {
         currentPosition = newPosition;
         transform.position = new Vector3(newPosition.x, 0.5f, newPosition.y);
-        
+
         StatsRecorder.Instance?.RecordStep();
 
-        if(showPath) AddPathMarker();
+        if (showPath) AddPathMarker();
     }
 
     private void AddPathMarker()
     {
-        if(pathMarkerPrefab)
-            Instantiate(pathMarkerPrefab, 
+        if (pathMarkerPrefab)
+            Instantiate(pathMarkerPrefab,
                       new Vector3(currentPosition.x, 0.1f, currentPosition.y),
-                      Quaternion.identity, 
+                      Quaternion.identity,
                       markerParent);
     }
 
@@ -60,5 +70,10 @@ public abstract class AgentBase : MonoBehaviour
     {
         StopAllCoroutines();
         isSolving = false;
+    }
+        protected virtual void OnDestroy()
+    {
+        if(isSolving)
+            StatsRecorder.Instance?.FinalizeRecording("Aborted");
     }
 }
