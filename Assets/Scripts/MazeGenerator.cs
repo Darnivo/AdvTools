@@ -32,13 +32,25 @@ public class MazeGenerator : MonoBehaviour
     [ContextMenu("Generate Maze")]
     public void GenerateMaze()
     {
-        Random.InitState(seed);
+         if (seed >= 0) Random.InitState(seed);
+        // Random.InitState(seed);
         CleanupMaze();
         InitializeGrid();
         ApplyEllersAlgorithm();
         VisualizeMaze();
 
         if (autoAdjustCamera) RelocateCam();
+    }
+
+    [ContextMenu("Generate at Parent Position")]
+    public void GenerateAtParentPosition()
+    {
+        // Set maze parent to this object's transform
+        if(mazeParent == null) mazeParent = new GameObject("Maze").transform;
+        // mazeParent.SetParent(transform.parent);
+        mazeParent.localPosition = Vector3.zero;
+        
+        GenerateMaze();
     }
 
     public void RelocateCam()
@@ -76,6 +88,8 @@ public class MazeGenerator : MonoBehaviour
     {
         if (mazeParent != null) DestroyImmediate(mazeParent.gameObject);
         mazeParent = new GameObject("Maze").transform;
+        mazeParent.SetParent(transform.parent);
+        mazeParent.localPosition = Vector3.zero;
     }
 
     private void InitializeGrid()
@@ -173,76 +187,81 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    private void VisualizeMaze()
+private void VisualizeMaze()
+{
+    // Create floors
+    for (int x = 0; x < height; x++)
     {
-        // Create floors
-        for (int x = 0; x < height; x++)
-        {
-            for (int z = 0; z < width; z++)
-            {
-                Instantiate(floorPrefab, new Vector3(x, 0, z), Quaternion.identity, mazeParent);
-            }
-        }
-
-        // Create walls
-        for (int x = 0; x < height; x++)
-        {
-            for (int z = 0; z < width; z++)
-            {
-                // Right walls
-                if (grid[x, z].rightWall && x < height - 1)
-                {
-                    Vector3 pos = new Vector3(x + 0.5f, 0.5f, z);
-                    GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-                    wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
-                }
-
-                // Bottom walls
-                if (grid[x, z].bottomWall && z < width - 1)
-                {
-                    Vector3 pos = new Vector3(x, 0.5f, z + 0.5f);
-                    GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-                    wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
-                }
-            }
-        }
-
-        // Create outer walls for the maze
-        // Top wall
-        for (int x = 0; x < height; x++)
-        {
-            Vector3 pos = new Vector3(x, 0.5f, -0.5f);
-            GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-            wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
-        }
-
-        // Left wall
         for (int z = 0; z < width; z++)
         {
-            Vector3 pos = new Vector3(-0.5f, 0.5f, z);
-            GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-            wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
+            GameObject floor = Instantiate(floorPrefab, mazeParent);
+            floor.transform.localPosition = new Vector3(x, 0, z);
         }
-
-        // Right outer wall
-        for (int z = 0; z < width; z++)
-        {
-            Vector3 pos = new Vector3(height - 0.5f, 0.5f, z);
-            GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-            wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
-        }
-
-        // Bottom outer wall
-        for (int x = 0; x < height; x++)
-        {
-            Vector3 pos = new Vector3(x, 0.5f, width - 0.5f);
-            GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, mazeParent);
-            wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
-        }
-
-        // Place markers
-        Instantiate(startMarker, new Vector3(0, 0.5f, 0), Quaternion.identity, mazeParent);
-        Instantiate(endMarker, new Vector3(height - 1, 0.5f, width - 1), Quaternion.identity, mazeParent);
     }
+
+    // Create walls
+    for (int x = 0; x < height; x++)
+    {
+        for (int z = 0; z < width; z++)
+        {
+            // Right walls
+            if (grid[x, z].rightWall && x < height - 1)
+            {
+                GameObject wall = Instantiate(wallPrefab, mazeParent);
+                wall.transform.localPosition = new Vector3(x + 0.5f, 0.5f, z);
+                wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
+            }
+
+            // Bottom walls
+            if (grid[x, z].bottomWall && z < width - 1)
+            {
+                GameObject wall = Instantiate(wallPrefab, mazeParent);
+                wall.transform.localPosition = new Vector3(x, 0.5f, z + 0.5f);
+                wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
+            }
+        }
+    }
+
+    // Create outer walls for the maze
+    // Top wall
+    for (int x = 0; x < height; x++)
+    {
+        GameObject wall = Instantiate(wallPrefab, mazeParent);
+        wall.transform.localPosition = new Vector3(x, 0.5f, -0.5f);
+        wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
+    }
+
+    // Left wall
+    for (int z = 0; z < width; z++)
+    {
+        GameObject wall = Instantiate(wallPrefab, mazeParent);
+        wall.transform.localPosition = new Vector3(-0.5f, 0.5f, z);
+        wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
+    }
+
+    // Right outer wall
+    for (int z = 0; z < width; z++)
+    {
+        GameObject wall = Instantiate(wallPrefab, mazeParent);
+        wall.transform.localPosition = new Vector3(height - 0.5f, 0.5f, z);
+        wall.transform.localScale = new Vector3(0.1f, 1f, 1f);
+    }
+
+    // Bottom outer wall
+    for (int x = 0; x < height; x++)
+    {
+        GameObject wall = Instantiate(wallPrefab, mazeParent);
+        wall.transform.localPosition = new Vector3(x, 0.5f, width - 0.5f);
+        wall.transform.localScale = new Vector3(1f, 1f, 0.1f);
+    }
+
+    // Place start and end markers
+    GameObject start = Instantiate(startMarker, mazeParent);
+    start.transform.localPosition = new Vector3(0, 0.5f, 0);
+
+    GameObject end = Instantiate(endMarker, mazeParent);
+    end.transform.localPosition = new Vector3(height - 1, 0.5f, width - 1);
+}
+
 }
 

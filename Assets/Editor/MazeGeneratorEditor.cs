@@ -14,5 +14,11 @@ public class MazeGeneratorEditor : Editor
             Undo.RecordObject(generator, "Generate Maze");
             generator.GenerateMaze();
         }
+
+        if(GUILayout.Button("Generate at Parent Position"))
+        {
+            Undo.RecordObject(generator, "Generate Maze at Parent");
+            generator.GenerateAtParentPosition();
+        }
     }
 }
