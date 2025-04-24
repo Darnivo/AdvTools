@@ -9,7 +9,8 @@ public abstract class AgentBase : Agent
     public GameObject pathMarkerPrefab;
 
     [HideInInspector] public Vector2Int currentPosition;
-    [HideInInspector] public MazeGenerator maze;
+    // [HideInInspector] public MazeGenerator maze;
+     public MazeGenerator maze;
 
 
     protected Transform markerParent;
@@ -38,7 +39,7 @@ public abstract class AgentBase : Agent
     protected void MoveTo(Vector2Int newPosition)
     {
         currentPosition = newPosition;
-        transform.position = new Vector3(newPosition.x, 0.5f, newPosition.y);
+        transform.localPosition = new Vector3(newPosition.x, 0.5f, newPosition.y);
 
         StatsRecorder.Instance?.RecordStep();
 
