@@ -64,6 +64,7 @@ public abstract class AgentBase : Agent
     protected void NotifySuccess()
     {
         StatsRecorder.Instance?.FinalizeRecording("Success");
+        Debug.Log("Maze reached");
         isSolving = false;
     }
 

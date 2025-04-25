@@ -5,22 +5,22 @@
     "MLMazeAgent": {
         "checkpoints": [
             {
-                "steps": 22400,
-                "file_path": "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-22400.onnx",
-                "reward": -99.77499961853027,
-                "creation_time": 1745103980.6956406,
+                "steps": 80906,
+                "file_path": "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-80906.onnx",
+                "reward": -11.328382266794934,
+                "creation_time": 1745611984.1884089,
                 "auxillary_file_paths": [
-                    "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-22400.pt"
+                    "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-80906.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 22400,
+            "steps": 80906,
             "file_path": "results\\maze_v3\\MLMazeAgent.onnx",
-            "reward": -99.77499961853027,
-            "creation_time": 1745103980.6956406,
+            "reward": -11.328382266794934,
+            "creation_time": 1745611984.1884089,
             "auxillary_file_paths": [
-                "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-22400.pt"
+                "results\\maze_v3\\MLMazeAgent\\MLMazeAgent-80906.pt"
             ]
         }
     },
