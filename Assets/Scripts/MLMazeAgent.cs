@@ -76,7 +76,16 @@ public class MLMazeAgent : AgentBase
 
         if (CanMove(move))
         {
+            // MoveStep(currentPosition + move);
+
+            float oldDist = Vector2Int.Distance(currentPosition, targetPos);
             MoveStep(currentPosition + move);
+            float newDist = Vector2Int.Distance(currentPosition, targetPos);
+            if (newDist < oldDist)
+            {
+                AddReward(+0.01f); 
+            }
+            
             AddReward(-0.01f); // Small penalty per step
         }
         else
