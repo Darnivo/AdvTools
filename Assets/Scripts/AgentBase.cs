@@ -19,6 +19,8 @@ public abstract class AgentBase : Agent
 
     public System.Action OnMazeSolved;
 
+    public event System.Action OnSuccess;
+
     protected override void Awake()
     {
         base.Awake();
@@ -66,6 +68,7 @@ public abstract class AgentBase : Agent
         StatsRecorder.Instance?.FinalizeRecording("Success");
         Debug.Log("Maze reached");
         isSolving = false;
+        OnSuccess?.Invoke();
     }
 
     public void StopJourney()
