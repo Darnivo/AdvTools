@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 6
+    VectorObservationSize: 10
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 738ee469f9a459d4fbdabc1530889ea4, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: b8927b7978416794c9449283bef395e4, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
   m_BehaviorName: MLMazeAgent
@@ -784,8 +784,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2c2708e7b535b4b86de348251348f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 15
-  height: 15
+  width: 8
+  height: 8
   seed: 4
   wallPrefab: {fileID: 1906903011429976072, guid: c50e5ab4994357c4781802fea9835c2a, type: 3}
   floorPrefab: {fileID: 1906903011429976072, guid: b61d1b51f7cc35b40a138782f42a2ddc, type: 3}

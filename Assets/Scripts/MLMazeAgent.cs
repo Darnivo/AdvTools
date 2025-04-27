@@ -2,11 +2,13 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using UnityEngine;
-
+using System.Collections.Generic;
 public class MLMazeAgent : AgentBase
 {
     private Vector2Int targetPos;
     private Vector2Int startPos;
+
+    private HashSet<Vector2Int> visitedPositions;
 
     public override void Initialize()
     {
@@ -47,6 +49,17 @@ public class MLMazeAgent : AgentBase
         currentPosition = startPos;
         // transform.position = new Vector3(startPos.x, 0.5f, startPos.y);
         transform.localPosition = new Vector3(startPos.x, 0.5f, startPos.y);
+
+        if (visitedPositions == null)
+        {
+            visitedPositions = new HashSet<Vector2Int>();
+        }
+        else
+        {
+            visitedPositions.Clear();
+        }
+        visitedPositions.Add(currentPosition);
+
         StatsRecorder.Instance.StartRecording(this);
     }
 
@@ -61,6 +74,11 @@ public class MLMazeAgent : AgentBase
         sensor.AddObservation(CanMove(Vector2Int.right)); // East
         sensor.AddObservation(CanMove(Vector2Int.down));  // South
         sensor.AddObservation(CanMove(Vector2Int.left));  // West
+
+        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.up) ? 1.0f : 0.0f);
+        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.right) ? 1.0f : 0.0f);
+        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.down) ? 1.0f : 0.0f);
+        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.left) ? 1.0f : 0.0f);    
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -78,14 +96,22 @@ public class MLMazeAgent : AgentBase
         {
             // MoveStep(currentPosition + move);
 
-            float oldDist = Vector2Int.Distance(currentPosition, targetPos);
-            MoveStep(currentPosition + move);
-            float newDist = Vector2Int.Distance(currentPosition, targetPos);
-            if (newDist < oldDist)
+            Vector2Int nextPosition = currentPosition + move;
+            if (visitedPositions.Contains(nextPosition))
             {
-                AddReward(+0.01f); 
+                AddReward(-0.05f);
             }
-            
+
+            // float oldDist = Vector2Int.Distance(currentPosition, targetPos);
+            MoveStep(currentPosition + move);
+            // float newDist = Vector2Int.Distance(currentPosition, targetPos);
+            // if (newDist < oldDist)
+            // {
+            //     AddReward(+0.01f); 
+            // }
+            visitedPositions.Add(currentPosition);
+
+
             AddReward(-0.01f); // Small penalty per step
         }
         else
