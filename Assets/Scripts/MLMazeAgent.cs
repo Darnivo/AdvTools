@@ -3,61 +3,50 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using UnityEngine;
 using System.Collections.Generic;
+
 public class MLMazeAgent : AgentBase
 {
     private Vector2Int targetPos;
     private Vector2Int startPos;
-
     private HashSet<Vector2Int> visitedPositions;
+
+    // How big the local vision range is (e.g., 1 => 3x3 vision, 2 => 5x5 vision)
+    private int visionRadius = 3;
 
     public override void Initialize()
     {
         base.Initialize();
 
-        // Get the parent environment object
         Transform environmentParent = transform.parent;
-
-        // Find MazeGenerator in environment parent's children
         maze = environmentParent.GetComponentInChildren<MazeGenerator>();
 
-        // Verify maze reference
         if (maze == null)
         {
             Debug.LogError("MazeGenerator not found in environment hierarchy!");
             return;
         }
 
-        // Set positions relative to maze
         startPos = Vector2Int.zero;
         targetPos = new Vector2Int(maze.width - 1, maze.height - 1);
 
-        // Set agent's local position to maze start
-        transform.localPosition = new Vector3(
-            startPos.x,
-            0.5f,
-            startPos.y
-        );
+        transform.localPosition = new Vector3(startPos.x, 0.5f, startPos.y);
     }
 
     public override void StartJourney()
     {
-        // ML-Agents controls episode start
+        // Controlled by ML-Agents
     }
 
     public override void OnEpisodeBegin()
     {
         currentPosition = startPos;
-        // transform.position = new Vector3(startPos.x, 0.5f, startPos.y);
         transform.localPosition = new Vector3(startPos.x, 0.5f, startPos.y);
 
         if (visitedPositions == null)
-        {
             visitedPositions = new HashSet<Vector2Int>();
-        }
         else
-        {
             visitedPositions.Clear();
-        }
+
         visitedPositions.Add(currentPosition);
 
         StatsRecorder.Instance.StartRecording(this);
@@ -65,14 +54,18 @@ public class MLMazeAgent : AgentBase
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // Relative target position (normalized)
         sensor.AddObservation((targetPos.x - currentPosition.x) / (float)maze.height);
         sensor.AddObservation((targetPos.y - currentPosition.y) / (float)maze.width);
 
-        // For a local 3x3 grid vision
-        for (int dx = -1; dx <= 1; dx++)
+        // Add directional observations (normalized)
+        Vector2Int dirToTarget = targetPos - currentPosition;
+        Vector2 dirToTargetNormalized = ((Vector2)dirToTarget).normalized;
+        sensor.AddObservation(dirToTargetNormalized.x);
+        sensor.AddObservation(dirToTargetNormalized.y);
+
+        for (int dx = -visionRadius; dx <= visionRadius; dx++)
         {
-            for (int dy = -1; dy <= 1; dy++)
+            for (int dy = -visionRadius; dy <= visionRadius; dy++)
             {
                 Vector2Int checkPos = currentPosition + new Vector2Int(dx, dy);
 
@@ -82,8 +75,7 @@ public class MLMazeAgent : AgentBase
                 if (checkPos.x >= 0 && checkPos.x < maze.height &&
                     checkPos.y >= 0 && checkPos.y < maze.width)
                 {
-                    // Check walls around this cell
-                    isWall = !CanMoveRelative(dx, dy);
+                    isWall = !CanMoveTo(checkPos);
                     isVisited = visitedPositions.Contains(checkPos);
                 }
 
@@ -92,18 +84,6 @@ public class MLMazeAgent : AgentBase
             }
         }
     }
-
-    // Helper function
-    private bool CanMoveRelative(int dx, int dy)
-    {
-        if (dx == 1 && dy == 0) return !maze.grid[currentPosition.x, currentPosition.y].rightWall;
-        if (dx == -1 && dy == 0 && currentPosition.x > 0) return !maze.grid[currentPosition.x - 1, currentPosition.y].rightWall;
-        if (dx == 0 && dy == 1) return !maze.grid[currentPosition.x, currentPosition.y].bottomWall;
-        if (dx == 0 && dy == -1 && currentPosition.y > 0) return !maze.grid[currentPosition.x, currentPosition.y - 1].bottomWall;
-        if (dx == 0 && dy == 0) return true; // current cell is always "no wall" for itself
-        return false; // diagonals treated as wall (or you can improve this later)
-    }
-
 
     public override void OnActionReceived(ActionBuffers actions)
     {
@@ -118,29 +98,21 @@ public class MLMazeAgent : AgentBase
 
         if (CanMove(move))
         {
-            // MoveStep(currentPosition + move);
-
             Vector2Int nextPosition = currentPosition + move;
-            if (visitedPositions.Contains(nextPosition))
-            {
-                AddReward(-0.05f);
-            }
 
-            // float oldDist = Vector2Int.Distance(currentPosition, targetPos);
-            MoveStep(currentPosition + move);
-            // float newDist = Vector2Int.Distance(currentPosition, targetPos);
-            // if (newDist < oldDist)
-            // {
-            //     AddReward(+0.01f); 
-            // }
+            // Progressive penalty for revisits
+            float revisitPenalty = visitedPositions.Contains(nextPosition) ? -0.1f : 0f;
+            AddReward(revisitPenalty);
+
+            // Distance-based reward
+            float prevDist = Vector2Int.Distance(currentPosition, targetPos);
+            float newDist = Vector2Int.Distance(nextPosition, targetPos);
+            AddReward((prevDist - newDist) * 0.1f); // Scale as needed
+
+            MoveStep(nextPosition);
             visitedPositions.Add(currentPosition);
 
-
-            AddReward(-0.01f); // Small penalty per step
-        }
-        else
-        {
-            AddReward(-0.1f); // Penalty for wall hit
+            AddReward(-0.01f); // Small step penalty
         }
     }
 
@@ -163,6 +135,12 @@ public class MLMazeAgent : AgentBase
         };
     }
 
+    private bool CanMoveTo(Vector2Int target)
+    {
+        Vector2Int diff = target - currentPosition;
+        return CanMove(diff);
+    }
+
     protected void MoveStep(Vector2Int newPos)
     {
         MoveTo(newPos);
@@ -177,7 +155,7 @@ public class MLMazeAgent : AgentBase
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var discreteActions = actionsOut.DiscreteActions;
-        discreteActions[0] = -1; // Reset
+        discreteActions[0] = -1;
 
         if (Input.GetKey(KeyCode.UpArrow)) discreteActions[0] = 0;
         if (Input.GetKey(KeyCode.RightArrow)) discreteActions[0] = 1;
