@@ -69,17 +69,41 @@ public class MLMazeAgent : AgentBase
         sensor.AddObservation((targetPos.x - currentPosition.x) / (float)maze.height);
         sensor.AddObservation((targetPos.y - currentPosition.y) / (float)maze.width);
 
-        // Wall observations (4 directions)
-        sensor.AddObservation(CanMove(Vector2Int.up));    // North
-        sensor.AddObservation(CanMove(Vector2Int.right)); // East
-        sensor.AddObservation(CanMove(Vector2Int.down));  // South
-        sensor.AddObservation(CanMove(Vector2Int.left));  // West
+        // For a local 3x3 grid vision
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                Vector2Int checkPos = currentPosition + new Vector2Int(dx, dy);
 
-        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.up) ? 1.0f : 0.0f);
-        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.right) ? 1.0f : 0.0f);
-        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.down) ? 1.0f : 0.0f);
-        sensor.AddObservation(visitedPositions.Contains(currentPosition + Vector2Int.left) ? 1.0f : 0.0f);    
+                bool isWall = true;
+                bool isVisited = false;
+
+                if (checkPos.x >= 0 && checkPos.x < maze.height &&
+                    checkPos.y >= 0 && checkPos.y < maze.width)
+                {
+                    // Check walls around this cell
+                    isWall = !CanMoveRelative(dx, dy);
+                    isVisited = visitedPositions.Contains(checkPos);
+                }
+
+                sensor.AddObservation(isWall ? 1.0f : 0.0f);
+                sensor.AddObservation(isVisited ? 1.0f : 0.0f);
+            }
+        }
     }
+
+    // Helper function
+    private bool CanMoveRelative(int dx, int dy)
+    {
+        if (dx == 1 && dy == 0) return !maze.grid[currentPosition.x, currentPosition.y].rightWall;
+        if (dx == -1 && dy == 0 && currentPosition.x > 0) return !maze.grid[currentPosition.x - 1, currentPosition.y].rightWall;
+        if (dx == 0 && dy == 1) return !maze.grid[currentPosition.x, currentPosition.y].bottomWall;
+        if (dx == 0 && dy == -1 && currentPosition.y > 0) return !maze.grid[currentPosition.x, currentPosition.y - 1].bottomWall;
+        if (dx == 0 && dy == 0) return true; // current cell is always "no wall" for itself
+        return false; // diagonals treated as wall (or you can improve this later)
+    }
+
 
     public override void OnActionReceived(ActionBuffers actions)
     {
