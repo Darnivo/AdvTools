@@ -39,7 +39,7 @@ environment_parameters:
           behavior: MLMazeAgent
           signal_smoothing: true
           min_lesson_length: 50000
-          threshold: 0.5
+          threshold: 0.8
         value: 5.0
 
       - name: MediumMaze
@@ -48,9 +48,9 @@ environment_parameters:
           behavior: MLMazeAgent
           signal_smoothing: true
           min_lesson_length: 60000
-          threshold: 0.7
-        value: 10.0
+          threshold: 0.8
+        value: 7.0
 
       - name: LargeMaze
         # no completion criteria for last lesson
-        value: 15.0
+        value: 10.0
