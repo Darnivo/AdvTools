@@ -1,4 +1,4 @@
-# Python virtual environenmt requirements:
+# Python virtual environment requirements:
 Python version : `3.8.10` **(Important!)**
 
 Library requirements:
